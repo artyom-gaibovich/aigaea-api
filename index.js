@@ -83,7 +83,7 @@ app.post('/process-proxies', (req, res) => {
     res.json({proxy_list: proxies.join('\n')});
 });
 app.use('/api', router);
-app.get('/start', async (req, res) => {
+app.get('/start/:id', async (req, res) => {
     const {id} = req.params;
     const clients = await prisma.proxyClient.findMany(
         {
