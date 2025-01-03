@@ -108,10 +108,10 @@ app.get('/start/:id', async (req, res) => {
         }
     ))
     res.send(clientsNew);
-    /*for (const client of clientsNew) {
+    for (const client of clientsNew) {
         client.run()
         await new Promise((resolve, reject) => setTimeout(resolve, 60000));
-    }*/
+    }
 });
 
 app.listen(port, () => {
