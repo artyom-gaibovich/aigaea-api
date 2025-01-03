@@ -88,7 +88,9 @@ app.get('/start/:id', async (req, res) => {
     const clients = await prisma.proxyWorker.findMany(
         {
             where: {
-                instance: id,
+                instance: {
+                    equals: id
+                },
                 proxy_list: {
                     not: null
                 }
