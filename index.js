@@ -105,9 +105,10 @@ app.get('/start/:id', async (req, res) => {
             proxyWorker: proxyTaskManager,
         }
     ))
-    clientsNew.forEach((client) => {
+    for (const client of clientsNew) {
+        await new Promise((resolve, reject) => setTimeout(resolve, 60000));
         client.run()
-    })
+    }
     res.send(clientsNew);
 });
 
