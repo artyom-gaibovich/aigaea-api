@@ -84,12 +84,12 @@ app.post('/process-proxies', (req, res) => {
 });
 app.use('/api', router);
 app.get('/start/:id', async (req, res) => {
-    const {id} = Number(req.params);
+    const {id} = req.params;
     const clients = await prisma.proxyWorker.findMany(
         {
             where: {
                 instance: {
-                    equals: id
+                    equals: Number(id)
                 },
                 proxy_list: {
                     not: null
@@ -108,10 +108,10 @@ app.get('/start/:id', async (req, res) => {
         }
     ))
     res.send(clientsNew);
-    for (const client of clientsNew) {
+    /*for (const client of clientsNew) {
         client.run()
         await new Promise((resolve, reject) => setTimeout(resolve, 60000));
-    }
+    }*/
 });
 
 app.listen(port, () => {
