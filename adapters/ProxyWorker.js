@@ -1,4 +1,4 @@
-class ProxyTaskManager {
+class ProxyWorker {
 
     constructor(AIGAEAClient) {
         this.AIGAEAClient = AIGAEAClient;
@@ -24,4 +24,4 @@ class ProxyTaskManager {
 }
 
 
-module.exports = ProxyTaskManager;
+module.exports = ProxyWorker;

@@ -1,0 +1,33 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["aigaea"]
+}
+
+model ProxyWorker {
+  id                String    @id @default(uuid()) @db.Uuid
+  state             Boolean   @db.Boolean
+  is_wallet_created Boolean?
+  is_verified       Boolean?
+  email             String?
+  expires           DateTime?
+  browser_id        String    @db.VarChar(256)
+  gaea_token        String    @db.VarChar(512)
+  proxy_list        String?   @db.Text
+  beget_password    String
+  aigaea_password   String
+  proxy_count       Int       @db.Integer
+  instance          Int?
+
+  ref_link String?
+  created  DateTime? @default(now()) @db.Timestamptz(6)
+  modified DateTime? @db.Timestamptz(6)
+
+  @@map("proxy_client")
+  @@schema("aigaea")
+}

@@ -15,7 +15,7 @@ class ProxyReader {
     }
 
     readNew(proxyList) {
-        const proxies = proxyList.split('\n').map(proxy => `${proxy.trim()}`).filter(proxy => proxy);
+        const proxies = proxyList.split('\n').map(proxy => `http://${proxy.trim()}`).filter(proxy => proxy);
 
         if (proxies.length === 0) {
             console.error("No proxies found in proxy.txt");
