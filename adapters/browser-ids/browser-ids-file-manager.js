@@ -1,9 +1,9 @@
-const fs = require('fs');
+const fs = require('fs').promises;
 class BrowserIdsFileManager {
 
     async read(browserIdFilePath) {
         try {
-            const data = fs.readFileSync(browserIdFilePath, 'utf-8');
+            const data = await fs.readFile(browserIdFilePath, 'utf-8');
             return JSON.parse(data);
         } catch (error) {
             return {};
@@ -12,7 +12,7 @@ class BrowserIdsFileManager {
 
     async save(browserIdFilePath, browserIds) {
         try {
-            await fs.writeFileSync(browserIdFilePath, JSON.stringify(browserIds, null, 2), 'utf-8');
+            await fs.writeFile(browserIdFilePath, JSON.stringify(browserIds, null, 2), 'utf-8');
             console.log('Browser IDs saved to file.');
         } catch (error) {
             console.error('Error saving browser IDs:', error);
