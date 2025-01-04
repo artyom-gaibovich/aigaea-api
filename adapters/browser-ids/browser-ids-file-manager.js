@@ -3,7 +3,7 @@ class BrowserIdsFileManager {
 
     async read(browserIdFilePath) {
         try {
-            const data = await readFile(browserIdFilePath, 'utf-8');
+            const data = fs.readFileSync(browserIdFilePath, 'utf-8');
             return JSON.parse(data);
         } catch (error) {
             return {};

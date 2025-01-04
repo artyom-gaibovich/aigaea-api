@@ -4,6 +4,7 @@ class HttpSender {
 
     constructor() {
     }
+
     async send(url, method, payloadData = null, proxy, headers) {
         const fetch = (await import('node-fetch')).default;
         try {
@@ -21,7 +22,9 @@ class HttpSender {
             } else {
                 response = await fetch(url, options);
             }
-            return await response.json();
+
+            const result = await response.json();
+            return result;
         } catch (error) {
             console.error('Error with proxy:', proxy);
         }
