@@ -1,9 +1,9 @@
-const fs = require('fs');
+const fs = require('fs').promises;
 
 class ProxyReader {
 
-    read(path = 'proxy.txt') {
-        const proxyList =  fs.readFileSync(path, 'utf-8');
+    async read(path = 'proxy.txt') {
+        const proxyList =  await fs.readFile(path, 'utf-8');
         const proxies = proxyList.split('\n').map(proxy => `http://${proxy.trim()}`).filter(proxy => proxy);
 
         if (proxies.length === 0) {

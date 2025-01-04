@@ -24,10 +24,34 @@ model ProxyWorker {
   proxy_count       Int       @db.Integer
   instance          Int?
 
-  ref_link String?
-  created  DateTime? @default(now()) @db.Timestamptz(6)
-  modified DateTime? @db.Timestamptz(6)
+  ref_link         String?
+  created          DateTime?          @default(now()) @db.Timestamptz(6)
+  modified         DateTime?          @db.Timestamptz(6)
+  ClientsToProxies ClientsToProxies[]
 
   @@map("proxy_client")
+  @@schema("aigaea")
+}
+
+model Proxy {
+  id String @id @unique
+
+  created          DateTime?          @default(now()) @db.Timestamptz(6)
+  modified         DateTime?          @db.Timestamptz(6)
+  ClientsToProxies ClientsToProxies[]
+
+  @@map("proxies")
+  @@schema("aigaea")
+}
+
+model ClientsToProxies {
+  proxy_id  String
+  client_id String @db.Uuid
+
+  proxy  Proxy       @relation(references: [id], fields: [proxy_id], onDelete: Cascade)
+  client ProxyWorker @relation(references: [id], fields: [client_id], onDelete: Cascade)
+
+  @@unique([client_id, proxy_id])
+  @@map("clients_to_proxies")
   @@schema("aigaea")
 }

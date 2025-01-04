@@ -11,6 +11,5 @@ apply-migration:
 	@echo "Apply migrations..."
 	npx prisma migrate deploy
 
-
-
-
+uploads:
+	mkdir uploads
