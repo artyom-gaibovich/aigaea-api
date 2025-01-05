@@ -1,18 +1,26 @@
 const {Router} = require("express");
-const { fork } = require('child_process');
-const { join } = require('path');
+const {fork} = require('child_process');
+const {join} = require('path');
 module.exports = ({prisma, workerManager}) => {
-
 
     const router = Router();
     const processMap = new Map();
 
- /*   router.post('/:clientId/start', (req, res) => {
-        const {clientId} = req.params;
-        const clientData = {id: clientId, ...req.body};
-        workerManager.startClient(clientData);
-        res.status(200).send({message: `Client ${clientId} started`});
-    });*/
+    let exitFlag = true;
+
+    process.on('SIGINT', () => {
+        if (!exitFlag) {
+            console.log("Received SIGINT. Ignoring exit and keeping child processes running.");
+            return;
+        }
+        console.log("Exiting application...");
+        process.exit();
+    });
+    process.on('exit', () => {
+        if (!exitFlag) {
+            console.log("Process is exiting. Ignoring child process termination.");
+        }
+    });
 
 
     /**
@@ -67,21 +75,21 @@ module.exports = ({prisma, workerManager}) => {
      *                     example: "Error message"
      */
     router.get('/:id/stop', async (req, res) => {
-        const { id } = req.params;
+        const {id} = req.params;
 
         const childProcess = processMap.get((id));
         if (!childProcess) {
-            return res.status(404).send({ message: `No running client found with ID ${id}` });
+            return res.status(404).send({message: `No running client found with ID ${id}`});
         }
 
         try {
             childProcess.kill();
             processMap.delete(Number(id)); // Удаляем процесс из карты
             console.log(`Client ${id} stopped successfully.`);
-            res.send({ message: `Client ${id} stopped successfully.` });
+            res.send({message: `Client ${id} stopped successfully.`});
         } catch (error) {
             console.error(`Failed to stop client ${id}:`, error);
-            res.status(500).send({ message: `Failed to stop client ${id}`, error: error.message });
+            res.status(500).send({message: `Failed to stop client ${id}`, error: error.message});
         }
     });
 
@@ -205,7 +213,6 @@ module.exports = ({prisma, workerManager}) => {
     });
 
 
-
     /**
      * @swagger
      *  /worker/start-all:
@@ -282,7 +289,7 @@ module.exports = ({prisma, workerManager}) => {
                 browser_id: client.browser_id,
                 proxies: client.ClientsToProxies.map((ctp) => `http://${ctp.proxy.id}`),
                 browserIdFilePath: join(__dirname, '..', '..', '..', '..', '..', 'uploads', `${client.browser_id}-browser_ids.json`),
-            })).filter(el=>el.proxies.length > 0);
+            })).filter(el => el.proxies.length > 0);
 
             clientsData.forEach((clientData) => {
                 const child = fork('./child.js', [JSON.stringify(clientData)]);
@@ -347,7 +354,7 @@ module.exports = ({prisma, workerManager}) => {
     router.get('/stop-all', async (req, res) => {
         try {
             if (processMap.size === 0) {
-                return res.status(404).send({ message: 'No running clients found' });
+                return res.status(404).send({message: 'No running clients found'});
             }
             processMap.forEach((childProcess, id) => {
                 try {
@@ -359,10 +366,10 @@ module.exports = ({prisma, workerManager}) => {
                 }
             });
 
-            res.send({ message: 'All clients stopped successfully.' });
+            res.send({message: 'All clients stopped successfully.'});
         } catch (error) {
             console.error('Failed to stop all clients:', error);
-            res.status(500).send({ message: 'Failed to stop all clients', error: error.message });
+            res.status(500).send({message: 'Failed to stop all clients', error: error.message});
         }
     });
 

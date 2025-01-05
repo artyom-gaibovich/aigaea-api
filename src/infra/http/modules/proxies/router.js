@@ -139,13 +139,24 @@ module.exports = ({prisma}) => {
                     where: {id: clientId},
                 });
                 if (!client) {
-                    throw new Error('Client not found');
+                    throw new Error('Клиент не найден');
                 }
                 const {proxy_count} = client;
 
                 if (!proxy_count || proxy_count <= 0) {
-                    throw new Error('Invalid proxy count for client');
+                    throw new Error('Неверное или нулевое колисчество проксей для клиента');
                 }
+
+                const assignedProxiesCount = await tx.clientsToProxies.count({
+                    where: {client_id: clientId},
+                });
+
+                const remainingProxies = proxy_count - assignedProxiesCount;
+
+                if (remainingProxies <= 0) {
+                    throw new Error('Клиенту уже назначено необходимое кол-во проксей');
+                }
+
                 const availableProxies = await tx.proxy.findMany({
                     where: {
                         ClientsToProxies: {
@@ -154,12 +165,13 @@ module.exports = ({prisma}) => {
                             }
                         },
                     },
-
-                    take: proxy_count,
+                    take: remainingProxies,
                 });
-                if (availableProxies.length < proxy_count) {
-                    throw new Error('Not enough available proxies in the database');
+
+                if (availableProxies.length < remainingProxies) {
+                    throw new Error('Недостаточное кол-во проксей в БД');
                 }
+
                 const createLinks = availableProxies.map((proxy) =>
                     tx.clientsToProxies.create({
                         data: {
@@ -168,17 +180,19 @@ module.exports = ({prisma}) => {
                         },
                     })
                 );
+
                 await Promise.all(createLinks);
+
                 return {
-                    message: 'Proxies assigned successfully',
+                    message: 'Прокси назначены успешно',
                     assignedProxies: availableProxies.map((proxy) => proxy.id),
                 };
             }, {timeout: 60000});
 
             res.status(200).json(result);
         } catch (error) {
-            console.error('Error assigning proxies:', error.message);
-            res.status(500).json({error: error.message || 'Internal server error'});
+            console.error('Ошибка с назначением проксей:', error.message);
+            res.status(500).json({error: error.message || 'Ошибка сервера или сбой транзакции базы данных'});
         }
     });
 
