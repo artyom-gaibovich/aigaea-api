@@ -19,23 +19,24 @@ module.exports = ({prisma}) => {
      * @swagger
      * /proxy-client/{id}:
      *   get:
-     *     summary: Get a ProxyWorker by ID
-     *     tags: [ProxyWorker]
+     *     summary: Получить ProxyClient по ID
+     *     tags: [ProxyClient]
      *     parameters:
      *       - in: path
      *         name: id
      *         required: true
      *         schema:
      *           type: string
-     *         description: UUID of the ProxyWorker
+     *         description: UUID ProxyClient
      *     responses:
      *       200:
-     *         description: The ProxyWorker data
+     *         description: Данные ProxyClient
      *       404:
-     *         description: ProxyWorker not found
+     *         description: ProxyClient не найден
      *       500:
-     *         description: Server error
+     *         description: Ошибка на сервере
      */
+
     router.get(
         '/:id',
         [param('id').isUUID(), handleValidationErrors],
@@ -56,41 +57,41 @@ module.exports = ({prisma}) => {
 
     /**
      * @swagger
-     * /proxyworkers:
+     * /proxy-clients:
      *   get:
-     *     summary: List ProxyWorkers with optional filters and pagination
-     *     tags: [ProxyWorker]
+     *     summary: Список ProxyClients с возможными фильтрами и пагинацией
+     *     tags: [ProxyClient]
      *     parameters:
      *       - in: query
      *         name: page
      *         schema:
      *           type: integer
-     *         description: Page number for pagination
+     *         description: Номер страницы для пагинации
      *       - in: query
      *         name: limit
      *         schema:
      *           type: integer
-     *         description: Number of items per page
+     *         description: Количество элементов на странице
      *       - in: query
      *         name: state
      *         schema:
      *           type: boolean
-     *         description: Filter by state
+     *         description: Фильтр по состоянию
      *       - in: query
      *         name: email
      *         schema:
      *           type: string
-     *         description: Filter by email
+     *         description: Фильтр по email
      *       - in: query
      *         name: browser_id
      *         schema:
      *           type: string
-     *         description: Filter by browser_id
+     *         description: Фильтр по browser_id
      *     responses:
      *       200:
-     *         description: List of ProxyWorkers
+     *         description: Список ProxyClients
      *       500:
-     *         description: Server error
+     *         description: Ошибка на сервере
      */
     router.get('/', async (req, res) => {
         try {
@@ -115,10 +116,10 @@ module.exports = ({prisma}) => {
 
     /**
      * @swagger
-     * /proxyworker:
+     * /proxy-client:
      *   post:
-     *     summary: Create a new ProxyWorker
-     *     tags: [ProxyWorker]
+     *     summary: Создать новый ProxyClient
+     *     tags: [ProxyClient]
      *     requestBody:
      *       required: true
      *       content:
@@ -152,11 +153,11 @@ module.exports = ({prisma}) => {
      *                 type: string
      *     responses:
      *       201:
-     *         description: Created successfully
+     *         description: Успешно создано
      *       400:
-     *         description: Validation errors
+     *         description: Ошибки валидации
      *       500:
-     *         description: Server error
+     *         description: Ошибка на сервере
      */
     router.post(
         '/',
@@ -193,15 +194,15 @@ module.exports = ({prisma}) => {
      * @swagger
      * /proxy-client/{id}:
      *   put:
-     *     summary: Update a ProxyWorker by ID
-     *     tags: [ProxyWorker]
+     *     summary: Обновить ProxyClient по ID
+     *     tags: [ProxyClient]
      *     parameters:
      *       - in: path
      *         name: id
      *         required: true
      *         schema:
      *           type: string
-     *         description: UUID of the ProxyWorker
+     *         description: UUID ProxyClient
      *     requestBody:
      *       required: true
      *       content:
@@ -235,11 +236,11 @@ module.exports = ({prisma}) => {
      *                 type: string
      *     responses:
      *       200:
-     *         description: Updated successfully
+     *         description: Успешно обновлено
      *       400:
-     *         description: Validation errors
+     *         description: Ошибки валидации
      *       500:
-     *         description: Server error
+     *         description: Ошибка на сервере
      */
     router.put(
         '/:id',
@@ -279,20 +280,20 @@ module.exports = ({prisma}) => {
      * @swagger
      * /proxy-client/{id}:
      *   delete:
-     *     summary: Delete a ProxyWorker by ID
-     *     tags: [ProxyWorker]
+     *     summary: Удалить ProxyClient по ID
+     *     tags: [ProxyClient]
      *     parameters:
      *       - in: path
      *         name: id
      *         required: true
      *         schema:
      *           type: string
-     *         description: UUID of the ProxyWorker
+     *         description: UUID ProxyClient
      *     responses:
      *       204:
-     *         description: Deleted successfully
+     *         description: Успешно удалено
      *       500:
-     *         description: Server error
+     *         description: Ошибка на сервере
      */
     router.delete(
         '/:id',
@@ -310,6 +311,7 @@ module.exports = ({prisma}) => {
             }
         }
     );
+
 
 
 

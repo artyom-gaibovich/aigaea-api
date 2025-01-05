@@ -14,8 +14,8 @@ module.exports = ({prisma}) => {
      *     post:
      *       tags:
      *         - Proxies
-     *       summary: Upload proxies
-     *       description: Accepts a list of proxies in plain text format (one proxy per line) and stores them in the database.
+     *       summary: Загрузка прокси
+     *       description: Принимает список прокси в формате простого текста (по одному прокси на строку) и сохраняет их в базе данных.
      *       requestBody:
      *         required: true
      *         content:
@@ -25,13 +25,13 @@ module.exports = ({prisma}) => {
      *               properties:
      *                 text:
      *                   type: string
-     *                   description: A plain text string containing proxies separated by new lines.
+     *                   description: Строка простого текста, содержащая прокси, разделенные новой строкой.
      *                   example: "proxy1\nproxy2\nproxy3"
      *               required:
      *                 - text
      *       responses:
      *         '200':
-     *           description: Proxies successfully uploaded and returned as a single string.
+     *           description: Прокси успешно загружены и возвращены как единая строка.
      *           content:
      *             application/json:
      *               schema:
@@ -39,10 +39,10 @@ module.exports = ({prisma}) => {
      *                 properties:
      *                   proxy_list:
      *                     type: string
-     *                     description: A plain text string containing proxies, separated by new lines.
+     *                     description: Строка простого текста, содержащая прокси, разделенные новой строкой.
      *                     example: "proxy1\nproxy2\nproxy3"
      *         '400':
-     *           description: Invalid input; "text" field is required.
+     *           description: Неверный ввод; требуется поле "text".
      *           content:
      *             application/json:
      *               schema:
@@ -50,8 +50,8 @@ module.exports = ({prisma}) => {
      *                 properties:
      *                   error:
      *                     type: string
-     *                     description: Error message.
-     *                     example: "Text is required"
+     *                     description: Сообщение об ошибке.
+     *                     example: "Текст обязателен"
      */
     router.post("/", (req, res) => {
         const text = req.body;
@@ -75,24 +75,24 @@ module.exports = ({prisma}) => {
 
 
     /**
-     * paths:
-     *   /proxies/{userId}:
+     * @swagger
+     * /proxies/{userId}:
      *     post:
      *       tags:
      *         - Proxies
-     *       summary: Assign proxies to a user
-     *       description: Fetches available proxies from the database and assigns them to a user based on their proxy count.
+     *       summary: Назначить прокси пользователю
+     *       description: Извлекает доступные прокси из базы данных и назначает их пользователю в зависимости от их количества.
      *       parameters:
      *         - name: userId
      *           in: path
      *           required: true
-     *           description: The ID of the user (client) to whom the proxies should be assigned.
+     *           description: Идентификатор пользователя (клиента), которому следует назначить прокси.
      *           schema:
      *             type: string
      *             example: "12345"
      *       responses:
      *         '200':
-     *           description: Proxies successfully assigned to the user.
+     *           description: Прокси успешно назначены пользователю.
      *           content:
      *             application/json:
      *               schema:
@@ -100,16 +100,16 @@ module.exports = ({prisma}) => {
      *                 properties:
      *                   message:
      *                     type: string
-     *                     description: Success message.
-     *                     example: "Proxies assigned successfully"
+     *                     description: Сообщение об успехе.
+     *                     example: "Прокси успешно назначены"
      *                   assignedProxies:
      *                     type: array
      *                     items:
      *                       type: string
-     *                     description: List of IDs of the assigned proxies.
+     *                     description: Список идентификаторов назначенных прокси.
      *                     example: ["proxy1", "proxy2", "proxy3"]
      *         '400':
-     *           description: Invalid user ID or insufficient proxy count for the user.
+     *           description: Неверный идентификатор пользователя или недостаточно прокси для пользователя.
      *           content:
      *             application/json:
      *               schema:
@@ -117,10 +117,10 @@ module.exports = ({prisma}) => {
      *                 properties:
      *                   error:
      *                     type: string
-     *                     description: Error message.
-     *                     example: "Client not found"
+     *                     description: Сообщение об ошибке.
+     *                     example: "Клиент не найден"
      *         '500':
-     *           description: Internal server error or database transaction failure.
+     *           description: Ошибка сервера или сбой транзакции базы данных.
      *           content:
      *             application/json:
      *               schema:
@@ -128,10 +128,10 @@ module.exports = ({prisma}) => {
      *                 properties:
      *                   error:
      *                     type: string
-     *                     description: Error message.
-     *                     example: "Not enough available proxies in the database"
+     *                     description: Сообщение об ошибке.
+     *                     example: "Недостаточно доступных прокси в базе данных"
      */
-    router.post('/:userId', async (req, res) => {
+    router.post('/:id', async (req, res) => {
         const clientId = req.params.id;
         try {
             const result = await prisma.$transaction(async (tx) => {
@@ -184,24 +184,24 @@ module.exports = ({prisma}) => {
 
 
     /**
-     * paths:
-     *   /proxies/{userId}:
+     * @swagger
+     *  /proxies/{userId}:
      *     delete:
      *       tags:
      *         - Proxies
-     *       summary: Remove all proxies assigned to a user
-     *       description: Deletes all proxies linked to the specified user (client).
+     *       summary: Удалить все прокси, назначенные пользователю
+     *       description: Удаляет все прокси, связанные с указанным пользователем (клиентом).
      *       parameters:
      *         - name: userId
      *           in: path
      *           required: true
-     *           description: The ID of the user (client) whose proxies should be removed.
+     *           description: Идентификатор пользователя (клиента), для которого следует удалить прокси.
      *           schema:
      *             type: string
      *             example: "12345"
      *       responses:
      *         '200':
-     *           description: Proxies successfully removed from the user.
+     *           description: Прокси успешно удалены у пользователя.
      *           content:
      *             application/json:
      *               schema:
@@ -209,14 +209,14 @@ module.exports = ({prisma}) => {
      *                 properties:
      *                   message:
      *                     type: string
-     *                     description: Success message.
-     *                     example: "All proxies removed successfully"
+     *                     description: Сообщение об успехе.
+     *                     example: "Все прокси успешно удалены"
      *                   removedCount:
      *                     type: integer
-     *                     description: The number of proxies removed.
+     *                     description: Количество удаленных прокси.
      *                     example: 5
      *         '400':
-     *           description: Invalid user ID or no proxies found for the user.
+     *           description: Неверный идентификатор пользователя или прокси не найдены для пользователя.
      *           content:
      *             application/json:
      *               schema:
@@ -224,10 +224,10 @@ module.exports = ({prisma}) => {
      *                 properties:
      *                   error:
      *                     type: string
-     *                     description: Error message.
-     *                     example: "Client not found"
+     *                     description: Сообщение об ошибке.
+     *                     example: "Клиент не найден"
      *         '500':
-     *           description: Internal server error or database transaction failure.
+     *           description: Ошибка сервера или сбой транзакции базы данных.
      *           content:
      *             application/json:
      *               schema:
@@ -235,11 +235,11 @@ module.exports = ({prisma}) => {
      *                 properties:
      *                   error:
      *                     type: string
-     *                     description: Error message.
-     *                     example: "Internal server error"
+     *                     description: Сообщение об ошибке.
+     *                     example: "Внутренняя ошибка сервера"
      */
     router.delete('/:id', async (req, res) => {
-        const clientId = req.params.userId;
+        const clientId = req.params.id;
 
         try {
             const result = await prisma.$transaction(async (tx) => {

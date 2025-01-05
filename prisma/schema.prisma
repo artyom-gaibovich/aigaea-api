@@ -9,7 +9,7 @@ datasource db {
   schemas  = ["aigaea"]
 }
 
-model ProxyWorker {
+model ProxyClient {
   id                String    @id @default(uuid()) @db.Uuid
   state             Boolean   @db.Boolean
   is_wallet_created Boolean?
@@ -58,7 +58,7 @@ model ClientsToProxies {
   client_id String @db.Uuid
 
   proxy  Proxy       @relation(references: [id], fields: [proxy_id], onDelete: Cascade)
-  client ProxyWorker @relation(references: [id], fields: [client_id], onDelete: Cascade)
+  client ProxyClient @relation(references: [id], fields: [client_id], onDelete: Cascade)
 
   @@unique([client_id, proxy_id]) // Unique constraint for preventing duplicate relations
   @@index([proxy_id]) // Index on proxy_id for faster joins and lookups

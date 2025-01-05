@@ -19,6 +19,7 @@ module.exports = ({prisma}) => {
         .use(bodyParser.json())
         .use(compression())
     apiRouter.use('/proxies', controller('proxies').router)
+    apiRouter.use('/worker', controller('worker').router)
     apiRouter.use('/proxy-client', controller('proxy-client').router)
     apiRouter.use('/', controller('index'))
 
