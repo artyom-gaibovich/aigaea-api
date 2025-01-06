@@ -27,3 +27,4 @@ module.exports = ({prisma}) => {
     router.use(`/api/v1`, apiRouter)
     return router;
 }
+

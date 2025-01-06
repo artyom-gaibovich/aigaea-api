@@ -29,13 +29,12 @@ model ProxyClient {
   modified         DateTime?          @db.Timestamptz(6)
   ClientsToProxies ClientsToProxies[]
 
-  // Adding indexes
-  @@index([state]) // Index on state for filtering
-  @@index([email]) // Index on email for lookups
-  @@index([browser_id]) // Index on browser_id for filtering
-  @@index([gaea_token]) // Index on gaea_token for lookups
-  @@index([expires]) // Index on expires for expired proxies
-  @@index([proxy_count]) // Index on proxy_count for better performance when sorting or filtering
+  @@index([state])
+  @@index([email])
+  @@index([browser_id])
+  @@index([gaea_token])
+  @@index([expires])
+  @@index([proxy_count])
   @@map("proxy_client")
   @@schema("aigaea")
 }
@@ -47,8 +46,7 @@ model Proxy {
   modified         DateTime?          @db.Timestamptz(6)
   ClientsToProxies ClientsToProxies[]
 
-  // Adding index
-  @@index([id]) // Index on id for faster lookups
+  @@index([id])
   @@map("proxies")
   @@schema("aigaea")
 }
@@ -60,9 +58,9 @@ model ClientsToProxies {
   proxy  Proxy       @relation(references: [id], fields: [proxy_id], onDelete: Cascade)
   client ProxyClient @relation(references: [id], fields: [client_id], onDelete: Cascade)
 
-  @@unique([client_id, proxy_id]) // Unique constraint for preventing duplicate relations
-  @@index([proxy_id]) // Index on proxy_id for faster joins and lookups
-  @@index([client_id]) // Index on client_id for faster lookups and joins
+  @@unique([client_id, proxy_id])
+  @@index([proxy_id])
+  @@index([client_id])
   @@map("clients_to_proxies")
   @@schema("aigaea")
 }

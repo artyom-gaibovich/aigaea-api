@@ -1,11 +1,11 @@
 const {Router} = require("express");
+const express = require("express");
 
 
 module.exports = ({prisma}) => {
 
 
     const router = Router()
-
 
     /**
      * @swagger
@@ -135,7 +135,7 @@ module.exports = ({prisma}) => {
         const clientId = req.params.id;
         try {
             const result = await prisma.$transaction(async (tx) => {
-                const client = await tx.proxyWorker.findUnique({
+                const client = await tx.proxyClient.findUnique({
                     where: {id: clientId},
                 });
                 if (!client) {
@@ -257,7 +257,7 @@ module.exports = ({prisma}) => {
 
         try {
             const result = await prisma.$transaction(async (tx) => {
-                const client = await tx.proxyWorker.findUnique({
+                const client = await tx.proxyClient.findUnique({
                     where: {id: clientId},
                 });
 

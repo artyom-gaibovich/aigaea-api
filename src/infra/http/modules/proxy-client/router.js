@@ -36,7 +36,6 @@ module.exports = ({prisma}) => {
      *       500:
      *         description: Ошибка на сервере
      */
-
     router.get(
         '/:id',
         [param('id').isUUID(), handleValidationErrors],

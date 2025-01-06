@@ -1,7 +1,9 @@
 const {Router} = require("express");
 const {fork} = require('child_process');
 const {join} = require('path');
-module.exports = ({prisma, workerManager}) => {
+const ProxyClientEntity = require("../../../../domain/entities/proxy-client");
+
+module.exports = ({prisma, workerManager, repository, middlewares}) => {
 
     const router = Router();
     const processMap = new Map();
@@ -74,22 +76,18 @@ module.exports = ({prisma, workerManager}) => {
      *                     type: string
      *                     example: "Error message"
      */
-    router.get('/:id/stop', async (req, res) => {
+    router.get('/:id/stop', middlewares.checkBillingMiddleware.checkBilling, (req, res) => {
         const {id} = req.params;
-
-        const childProcess = processMap.get((id));
-        if (!childProcess) {
-            return res.status(404).send({message: `No running client found with ID ${id}`});
-        }
-
         try {
-            childProcess.kill();
-            processMap.delete(Number(id)); // Удаляем процесс из карты
-            console.log(`Client ${id} stopped successfully.`);
-            res.send({message: `Client ${id} stopped successfully.`});
+            const message = workerManager.stopById(id);
+            console.log(message);
+            res.send({message});
         } catch (error) {
-            console.error(`Failed to stop client ${id}:`, error);
-            res.status(500).send({message: `Failed to stop client ${id}`, error: error.message});
+            console.error(error.message);
+            if (error.message.includes('Нет запущенного клиента с')) {
+                return res.status(404).send({message: error.message});
+            }
+            res.status(500).send({message: error.message, error: error.stack});
         }
     });
 
@@ -164,52 +162,14 @@ module.exports = ({prisma, workerManager}) => {
      *                     type: string
      *                     example: "Error message"
      */
-    router.get('/:id/start', async (req, res) => {
+    router.get('/:id/start', middlewares.checkBillingMiddleware.checkBilling, async (req, res) => {
         const {id} = req.params;
-
-        const client = await prisma.proxyWorker.findUnique({
-            where: {
-                id: id
-            },
-            include: {
-                ClientsToProxies: {
-                    include: {
-                        proxy: true,
-                    },
-                },
-            },
-        });
-
+        const client = await repository.proxyClientRepository.findByIdWithProxies(id)
         if (!client) {
-            return res.status(404).send({message: 'No clients found with the given ID'});
+            return res.status(404).send({message: 'В бд не найден клиент с ID'});
         }
-
-        const clientData = {
-            id: client.id,
-            gaea_token: client.gaea_token,
-            browser_id: client.browser_id,
-            proxies: client.ClientsToProxies.map((ctp) => `http://${ctp.proxy.id}`),
-            browserIdFilePath: join(__dirname, '..', '..', '..', '..', '..', 'uploads', `${client.browser_id}-browser_ids.json`),
-        }
-
-        res.send(clientData);
-
-        const child = fork('./child.js', [JSON.stringify(clientData)]);
-
-        processMap.set(clientData.id, child);
-
-        child.on('message', (message) => {
-            console.log(`Child ${clientData.id} Message: ${message}`);
-        });
-
-        child.on('error', (error) => {
-            console.error(`Child ${clientData.id} Error: ${error.message}`);
-        });
-
-        child.on('exit', (code) => {
-            console.log(`Child ${clientData.id} exited with code ${code}`);
-            processMap.delete(clientData.id);
-        });
+        await workerManager.start(client)
+        res.send(client);
     });
 
 
@@ -269,48 +229,12 @@ module.exports = ({prisma, workerManager}) => {
      */
     router.get('/start-all', async (req, res) => {
         try {
-            const clients = await prisma.proxyWorker.findMany({
-                include: {
-                    ClientsToProxies: {
-                        include: {
-                            proxy: true,
-                        },
-                    },
-                },
-            });
-
+            const clients = await repository.proxyClientRepository.findAllWithProxies()
             if (!clients.length) {
                 return res.status(404).send({message: 'No clients found'});
             }
-
-            const clientsData = clients.map((client) => ({
-                id: client.id,
-                gaea_token: client.gaea_token,
-                browser_id: client.browser_id,
-                proxies: client.ClientsToProxies.map((ctp) => `http://${ctp.proxy.id}`),
-                browserIdFilePath: join(__dirname, '..', '..', '..', '..', '..', 'uploads', `${client.browser_id}-browser_ids.json`),
-            })).filter(el => el.proxies.length > 0);
-
-            clientsData.forEach((clientData) => {
-                const child = fork('./child.js', [JSON.stringify(clientData)]);
-
-                processMap.set(clientData.id, child);
-
-                child.on('message', (message) => {
-                    console.log(`Child ${clientData.id} Message: ${message}`);
-                });
-
-                child.on('error', (error) => {
-                    console.error(`Child ${clientData.id} Error: ${error.message}`);
-                });
-
-                child.on('exit', (code) => {
-                    console.log(`Child ${clientData.id} exited with code ${code}`);
-                    processMap.delete(clientData.id);
-                });
-            });
-
-            res.send(clientsData);
+            await workerManager.startAll(clients)
+            res.send(clients);
         } catch (error) {
             console.error('Failed to start all clients:', error);
             res.status(500).send({message: 'Failed to start all clients', error: error.message});
@@ -351,7 +275,7 @@ module.exports = ({prisma, workerManager}) => {
      *                     type: string
      *                     example: "Error message"
      */
-    router.get('/stop-all', async (req, res) => {
+    router.get('/stop-all', middlewares.checkBillingMiddleware.checkBilling, async (req, res) => {
         try {
             if (processMap.size === 0) {
                 return res.status(404).send({message: 'No running clients found'});

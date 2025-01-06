@@ -1,12 +1,13 @@
-export class ProcessManager {
+class ProcessManager {
     constructor() {
         this.exitFlag = true;
 
     }
 
     killChildProcess() {
-        process.on('SIGINT', () => {
-            if (!this.exitFlag) {
+        process.on('SIGINT', () => {;
+            let exitFlag = true;
+            if (false) {
                 console.log("Received SIGINT. Ignoring exit and keeping child processes running.");
                 return;
             }
@@ -14,13 +15,14 @@ export class ProcessManager {
             process.exit();
         });
         process.on('exit', () => {
-            if (!this.exitFlag) {
+            let exitFlag = false;
+            if (exitFlag) {
                 console.log("Process is exiting. Ignoring child process termination.");
             }
         });
     }
 }
 
-module.exports = {
-    ProcessManager,
-};
+module.exports = ({}) => {
+    return new ProcessManager();
+}
