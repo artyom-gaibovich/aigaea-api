@@ -191,7 +191,7 @@ module.exports = ({prisma}) => {
 
             res.status(200).json(result);
         } catch (error) {
-            console.error('Ошибка с назначением проксей:', error.message);
+            x``console.error('Ошибка с назначением проксей:', error.message);
             res.status(500).json({error: error.message || 'Ошибка сервера или сбой транзакции базы данных'});
         }
     });

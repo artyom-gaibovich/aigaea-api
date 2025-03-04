@@ -1,5 +1,5 @@
-const {HttpsProxyAgent} = require("https-proxy-agent");
-
+const {HttpProxyAgent} = require("http-proxy-agent");
+const axios = require("axios");
 class HttpSender {
 
     constructor() {
@@ -7,8 +7,9 @@ class HttpSender {
 
     async send(url, method, payloadData = null, proxy, headers) {
         const fetch = (await import('node-fetch')).default;
+        url = url.replace('https://', 'http://');
         try {
-            const agent = new HttpsProxyAgent(proxy);
+            const agent = new HttpProxyAgent(proxy);
             let response;
             const options = {
                 method: method,
@@ -28,6 +29,8 @@ class HttpSender {
             console.error('Error with proxy:', proxy);
         }
     }
+
+
 }
 
 module.exports = HttpSender;
